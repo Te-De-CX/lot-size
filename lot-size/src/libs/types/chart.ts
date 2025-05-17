@@ -8,7 +8,6 @@ export type ChartType =
   | "100 index" | "100s" 
   | "150s" | "250s";
 
-// types.ts
 export interface TradeCalculation {
   id: string;
   date: string;
@@ -17,16 +16,20 @@ export interface TradeCalculation {
   accountBalance: number;
   riskPercentage: number;
   entryPrice: number;
+  exitPrice: number;
   stopLossPrice: number;
   calculatedLotSize: number;
   riskAmount: number;
   pipValue: number;
   pipDistance: number;
-  // Add these new fields to store user inputs
+  tpDistance: number;
+  potentialProfit: number;
+  riskRewardRatio: number;
   inputs: {
     accountBalance: string;
     riskPercentage: string;
     entryPrice: string;
+    exitPrice: string;
     stopLossPrice: string;
   };
 }
@@ -37,5 +40,6 @@ export interface CalculatorFormData {
   accountBalance: string;
   riskPercentage: string;
   entryPrice: string;
+  exitPrice: string;
   stopLossPrice: string;
 }

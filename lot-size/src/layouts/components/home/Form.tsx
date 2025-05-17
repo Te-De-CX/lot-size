@@ -3,22 +3,23 @@
 import React, { useState } from 'react';
 import { useLocalStorage } from '@/libs/hooks/useLocalStorage';
 import DropDown from '@/layouts/UI/DropDown';
-import {charts, trend} from '@/libs/data/dropDown'
+import { charts, trend } from '@/libs/data/dropDown';
 import Button from '@/layouts/UI/Button';
 import { TradeCalculation, CalculatorFormData } from '@/libs/types/chart';
 import Modal from '../modal/Modal';
 
 const LotSizeCalculator = () => {
   const [calculations, setCalculations] = useLocalStorage<TradeCalculation[]>('tradeCalculations', []);
+  console.log(calculations)
   const [formData, setFormData] = useState<CalculatorFormData>({
     chart: '10 index',
     direction: 'buy',
     accountBalance: '',
     riskPercentage: '',
     entryPrice: '',
+    exitPrice: '',
     stopLossPrice: ''
   });
-  console.log(calculations)
   const [result, setResult] = useState<Omit<TradeCalculation, 'id' | 'date' | 'inputs'> | null>(null);
   const [selectedHistory, setSelectedHistory] = useState<TradeCalculation | null>(null);
 
@@ -35,8 +36,9 @@ const LotSizeCalculator = () => {
     const riskPercentage = parseFloat(formData.riskPercentage) / 100;
     const entryPrice = parseFloat(formData.entryPrice);
     const stopLossPrice = parseFloat(formData.stopLossPrice);
+    const exitPrice = parseFloat(formData.exitPrice);
 
-    if (!accountBalance || !riskPercentage || !entryPrice || !stopLossPrice) {
+    if (!accountBalance || !riskPercentage || !entryPrice || !stopLossPrice || !exitPrice) {
       alert('Please fill all fields with valid numbers');
       return;
     }
@@ -44,8 +46,9 @@ const LotSizeCalculator = () => {
     // Calculate risk amount
     const riskAmount = accountBalance * riskPercentage;
 
-    // Calculate pip distance (assuming price is in pips)
+    // Calculate pip distances
     const pipDistance = Math.abs(entryPrice - stopLossPrice);
+    const tpDistance = Math.abs(entryPrice - exitPrice);
 
     // Determine pip value based on chart type
     let pipValue = 0;
@@ -60,22 +63,30 @@ const LotSizeCalculator = () => {
     // Calculate lot size (simplified calculation)
     const calculatedLotSize = riskAmount / (pipDistance * pipValue);
 
+    // Calculate potential profit and risk/reward ratio
+    const potentialProfit = calculatedLotSize * tpDistance * pipValue;
+    const riskRewardRatio = potentialProfit / riskAmount;
+
     const calculationResult = {
       chart: formData.chart,
       direction: formData.direction,
       accountBalance,
       riskPercentage: riskPercentage * 100,
       entryPrice,
+      exitPrice,
       stopLossPrice,
       calculatedLotSize,
       riskAmount,
       pipValue,
       pipDistance,
-      // Store the original user inputs
+      tpDistance,
+      potentialProfit,
+      riskRewardRatio,
       inputs: {
         accountBalance: formData.accountBalance,
         riskPercentage: formData.riskPercentage,
         entryPrice: formData.entryPrice,
+        exitPrice: formData.exitPrice,
         stopLossPrice: formData.stopLossPrice
       }
     };
@@ -98,6 +109,7 @@ const LotSizeCalculator = () => {
       accountBalance: '',
       riskPercentage: '',
       entryPrice: '',
+      exitPrice: '',
       stopLossPrice: ''
     });
     setResult(null);
@@ -105,7 +117,7 @@ const LotSizeCalculator = () => {
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl  text-black font-bold mb-6 text-center">Lot Size Calculator</h2>
+      <h2 className="text-2xl text-black font-bold mb-6 text-center">Lot Size Calculator</h2>
       
       <div className="space-y-4">
         <DropDown
@@ -175,6 +187,22 @@ const LotSizeCalculator = () => {
 
         <div>
           <label className="block text-sm font-medium mb-1 text-gray-700">
+            Take Profit Price
+          </label>
+          <input
+            type="number"
+            name="exitPrice"
+            value={formData.exitPrice}
+            onChange={handleInputChange}
+            className="w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            placeholder="e.g. 1.2400"
+            step="0.0001"
+            min="0"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium mb-1 text-gray-700">
             Stop Loss Price
           </label>
           <input
@@ -194,7 +222,7 @@ const LotSizeCalculator = () => {
             label="Calculate"
             onClick={calculateLotSize}
             type="primary"
-            disabled={!formData.accountBalance || !formData.riskPercentage || !formData.entryPrice || !formData.stopLossPrice}
+            disabled={!formData.accountBalance || !formData.riskPercentage || !formData.entryPrice || !formData.stopLossPrice || !formData.exitPrice}
           />
           <Button
             label="Reset"
@@ -212,8 +240,20 @@ const LotSizeCalculator = () => {
                 <span className="font-medium">${result.riskAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-black">Pip Distance:</span>
+                <span className="text-black">Potential Profit:</span>
+                <span className="font-medium">${result.potentialProfit.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black">Risk/Reward Ratio:</span>
+                <span className="font-medium">{result.riskRewardRatio.toFixed(2)}:1</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black">SL Distance (pips):</span>
                 <span className="font-medium">{result.pipDistance.toFixed(4)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-black">TP Distance (pips):</span>
+                <span className="font-medium">{result.tpDistance.toFixed(4)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-black">Pip Value:</span>
@@ -227,6 +267,7 @@ const LotSizeCalculator = () => {
           </div>
         )}
       </div>
+
       <Modal
         isOpen={!!selectedHistory}
         onClose={() => setSelectedHistory(null)}
@@ -262,6 +303,10 @@ const LotSizeCalculator = () => {
                 <p className="font-medium">{selectedHistory.inputs.entryPrice}</p>
               </div>
               <div>
+                <p className="text-sm text-gray-500">Take Profit Price</p>
+                <p className="font-medium">{selectedHistory.inputs.exitPrice}</p>
+              </div>
+              <div>
                 <p className="text-sm text-gray-500">Stop Loss Price</p>
                 <p className="font-medium">{selectedHistory.inputs.stopLossPrice}</p>
               </div>
@@ -275,8 +320,20 @@ const LotSizeCalculator = () => {
                   <p className="font-medium">${selectedHistory.riskAmount.toFixed(2)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">Pip Distance</p>
+                  <p className="text-sm text-gray-500">Potential Profit</p>
+                  <p className="font-medium">${selectedHistory.potentialProfit.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">Risk/Reward Ratio</p>
+                  <p className="font-medium">{selectedHistory.riskRewardRatio.toFixed(2)}:1</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">SL Distance (pips)</p>
                   <p className="font-medium">{selectedHistory.pipDistance.toFixed(4)}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-gray-500">TP Distance (pips)</p>
+                  <p className="font-medium">{selectedHistory.tpDistance.toFixed(4)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Pip Value</p>
