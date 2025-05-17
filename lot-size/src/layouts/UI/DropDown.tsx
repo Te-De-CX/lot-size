@@ -22,7 +22,7 @@ const DropDown: React.FC<DropDownProp> = ({
                 name={name}
                 value={selectedValue}
                 onChange={logic}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black focus:border-blue-500 transition"
                 required
             >
                 <option value="">Select {value}</option>

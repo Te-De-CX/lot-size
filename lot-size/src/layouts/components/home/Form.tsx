@@ -105,7 +105,7 @@ const LotSizeCalculator = () => {
 
   return (
     <div className="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Lot Size Calculator</h2>
+      <h2 className="text-2xl  text-black font-bold mb-6 text-center">Lot Size Calculator</h2>
       
       <div className="space-y-4">
         <DropDown
@@ -133,7 +133,7 @@ const LotSizeCalculator = () => {
             name="accountBalance"
             value={formData.accountBalance}
             onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             placeholder="e.g. 1000"
             step="0.01"
             min="0"
@@ -149,7 +149,7 @@ const LotSizeCalculator = () => {
             name="riskPercentage"
             value={formData.riskPercentage}
             onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             placeholder="e.g. 2"
             step="0.1"
             min="0"
@@ -166,7 +166,7 @@ const LotSizeCalculator = () => {
             name="entryPrice"
             value={formData.entryPrice}
             onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             placeholder="e.g. 1.2345"
             step="0.0001"
             min="0"
@@ -182,7 +182,7 @@ const LotSizeCalculator = () => {
             name="stopLossPrice"
             value={formData.stopLossPrice}
             onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+            className="w-full p-3 border text-black border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
             placeholder="e.g. 1.2300"
             step="0.0001"
             min="0"
@@ -208,19 +208,19 @@ const LotSizeCalculator = () => {
             <h3 className="text-lg font-semibold mb-3">Calculation Results</h3>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-600">Risk Amount:</span>
+                <span className="text-black">Risk Amount:</span>
                 <span className="font-medium">${result.riskAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Pip Distance:</span>
+                <span className="text-black">Pip Distance:</span>
                 <span className="font-medium">{result.pipDistance.toFixed(4)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Pip Value:</span>
+                <span className="text-black">Pip Value:</span>
                 <span className="font-medium">${result.pipValue.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Recommended Lot Size:</span>
+                <span className="text-black">Recommended Lot Size:</span>
                 <span className="font-medium">{result.calculatedLotSize.toFixed(2)}</span>
               </div>
             </div>
